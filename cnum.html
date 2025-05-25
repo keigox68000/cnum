@@ -1,0 +1,116 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>番号チェック</title>
+    <link href="https://fonts.googleapis.com/css2?family=RocknRoll+One&display=swap" rel="stylesheet">
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            height: 100vh;
+            background-color: white;
+            padding-top: 10px;
+            font-family: 'RocknRoll One', sans-serif;
+        }
+        .timer {
+            font-size: 80px;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(4, 60px);
+            gap: 5px;
+            margin-bottom: 20px;
+        }
+        .button {
+            width: 60px;
+            height: 60px;
+            font-size: 32px;
+            font-weight: bold;
+            text-align: center;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            border: 2px solid blue;
+            background-color: white;
+            color: blue;
+        }
+        .button.checked {
+            background-color: blue;
+            color: white;
+        }
+        .reset-button {
+            padding: 10px 20px;
+            font-size: 32px;
+            font-weight: bold;
+            background-color: red;
+            color: white;
+            border: none;
+            cursor: pointer;
+            margin-top: 10px;
+            font-family: 'RocknRoll One', sans-serif;
+        }
+    </style>
+</head>
+<body>
+    <div class="timer" id="timer">0</div>
+    <div class="grid" id="grid"></div>
+    <button class="reset-button" id="resetButton">リセット</button>
+
+    <script>
+        let timerValue = 0;
+        const timerElement = document.getElementById("timer");
+        
+        function updateTimer() {
+            timerElement.textContent = timerValue;
+            timerValue = (timerValue + 1) % 10;
+        }
+        setInterval(updateTimer, 1000);
+        
+        const numbers = [10, 7, 4, 1, 11, 8, 5, 2, 12, 9, 6, 3];
+        const grid = document.getElementById("grid");
+        const resetButton = document.getElementById("resetButton");
+        
+        function loadState() {
+            return JSON.parse(localStorage.getItem("checkedNumbers")) || {};
+        }
+        
+        function saveState(state) {
+            localStorage.setItem("checkedNumbers", JSON.stringify(state));
+        }
+        
+        function resetState() {
+            localStorage.removeItem("checkedNumbers");
+            createButtons();
+        }
+        
+        function createButtons() {
+            grid.innerHTML = "";
+            const state = loadState();
+            numbers.forEach(number => {
+                const btn = document.createElement("div");
+                btn.textContent = number;
+                btn.classList.add("button");
+                if (state[number]) {
+                    btn.classList.add("checked");
+                }
+                btn.addEventListener("click", () => {
+                    btn.classList.toggle("checked");
+                    state[number] = btn.classList.contains("checked");
+                    saveState(state);
+                });
+                grid.appendChild(btn);
+            });
+        }
+        
+        resetButton.addEventListener("click", resetState);
+        createButtons();
+    </script>
+</body>
+</html>
